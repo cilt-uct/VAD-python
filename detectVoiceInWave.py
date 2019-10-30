@@ -1,21 +1,30 @@
 from vad import VoiceActivityDetector
+from descriptions import *
 import argparse
-import json
+from config.logging_setup import logger
 
-def save_to_file(data, filename):
-    with open(filename, 'w') as fp:
-        json.dump(data, fp)
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Analyze input wave-file and save detected speech interval to json file.')
-    parser.add_argument('inputfile', metavar='INPUTWAVE',
-                        help='the full path to input wave file')
-    parser.add_argument('outputfile', metavar='OUTPUTFILE',
-                        help='the full path to output json file to save detected speech intervals')
-    args = parser.parse_args()
-    
-    v = VoiceActivityDetector(args.inputfile)
+def get_speech_duration(speech):
+    duration = 0
+    for segment in speech:
+        duration = duration + (segment["speech_end"]-segment["speech_begin"])
+    return duration
+
+
+def detect_speech(input_file):
+    v = VoiceActivityDetector(input_file)
     raw_detection = v.detect_speech()
     speech_labels = v.convert_windows_to_readible_labels(raw_detection)
-    
-    save_to_file(speech_labels, args.outputfile)
+    speech = get_speech_duration(speech_labels)
+    logger.info("File: {}, Duration: {}".format(input_file, speech))
+    empty_venue = (v.duration / speech if speech > 0 else 1) > 0.95
+    logger.info("File: {}, Empty: {}".format(input_file, empty_venue))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=ARG_DESCRIPTION)
+    parser.add_argument('-i', '--input', dest='inputfile', metavar='(wac)', help=INPUT_DESCRIPTION)
+    parser.add_argument('-o', '--output', dest='outputfile', metavar='(txt)', help=OUTPUT_DESCRIPTION)
+    args = parser.parse_args()
+
+    detect_speech(args.inputfile)

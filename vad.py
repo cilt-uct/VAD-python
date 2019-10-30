@@ -2,6 +2,7 @@ import numpy as np
 import scipy.io.wavfile as wf
 import matplotlib.pyplot as plt
 
+
 class VoiceActivityDetector():
     """ Use signal energy to detect voice activity in wav file """
     
@@ -16,6 +17,7 @@ class VoiceActivityDetector():
            
     def _read_wav(self, wave_file):
         self.rate, self.data = wf.read(wave_file)
+        self.duration = len(self.data) / float(self.rate)
         self.channels = len(self.data.shape)
         self.filename = wave_file
         return self
