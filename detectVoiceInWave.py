@@ -23,8 +23,7 @@ def detect_speech(input_file):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=ARG_DESCRIPTION)
-    parser.add_argument('-i', '--input', dest='inputfile', metavar='(wac)', help=INPUT_DESCRIPTION)
-    parser.add_argument('-o', '--output', dest='outputfile', metavar='(txt)', help=OUTPUT_DESCRIPTION)
+    parser.add_argument('-i', '--input', dest='inputfile', metavar='(wav)', help=INPUT_DESCRIPTION)
     args = parser.parse_args()
 
     detect_speech(args.inputfile)
