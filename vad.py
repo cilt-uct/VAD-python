@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.io.wavfile as wf
-import matplotlib.pyplot as plt
 
 
 class VoiceActivityDetector():
@@ -112,22 +111,6 @@ class VoiceActivityDetector():
                 speech_time.append(speech_label)
                 print(window[0], speech_time_end)
         return speech_time
-      
-    def plot_detected_speech_regions(self):
-        """ Performs speech detection and plot original signal and speech regions.
-        """
-        data = self.data
-        detected_windows = self.detect_speech()
-        data_speech = np.zeros(len(data))
-        it = np.nditer(detected_windows[:,0], flags=['f_index'])
-        while not it.finished:
-            data_speech[int(it[0])] = data[int(it[0])] * detected_windows[it.index,1]
-            it.iternext()
-        plt.figure()
-        plt.plot(data_speech)
-        plt.plot(data)
-        plt.show()
-        return self
        
     def detect_speech(self):
         """ Detects speech regions based on ratio between speech band energy
