@@ -18,14 +18,17 @@ def get_speech_duration(speech):
 
 
 def detect_speech(input_file, output_file):
-    v = VoiceActivityDetector(input_file)
-    raw_detection = v.detect_speech()
-    speech_labels = v.convert_windows_to_readible_labels(raw_detection)
-    speech = get_speech_duration(speech_labels)
-    logger.info("File: {}, Duration: {}".format(input_file, speech))
-    empty_venue = (v.duration / speech if speech > 0 else 1) > 0.95
-    save_to_file(empty_venue, output_file)
-    logger.info("File: {}, Empty: {}".format(input_file, empty_venue))
+    try:
+        v = VoiceActivityDetector(input_file)
+        raw_detection = v.detect_speech()
+        speech_labels = v.convert_windows_to_readible_labels(raw_detection)
+        speech = get_speech_duration(speech_labels)
+        logger.info("File: {}, Duration: {}".format(input_file, speech))
+        empty_venue = (v.duration / speech if speech > 0 else 1) > 0.95
+        save_to_file(empty_venue, output_file)
+        logger.info("File: {}, Empty: {}".format(input_file, empty_venue))
+    except Exception as e:
+        logger.error("Something went wrong while trying to detect speech: {}".format(e))
 
 
 if __name__ == "__main__":

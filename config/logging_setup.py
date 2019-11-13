@@ -3,7 +3,7 @@ from .config import LOGS
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-log_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+log_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 file_handler = logging.FileHandler(LOGS)
 file_handler.setLevel(logging.INFO)
