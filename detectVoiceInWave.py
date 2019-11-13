@@ -29,9 +29,12 @@ def detect_speech(input_file, output_file):
 
 
 if __name__ == "__main__":
+    logger.info("New empty venue detection kicked off")
     parser = argparse.ArgumentParser(description=ARG_DESCRIPTION)
     parser.add_argument('-i', '--input', dest='inputfile', metavar='(wav)', help=INPUT_DESCRIPTION)
     parser.add_argument('-o', '--output', dest='outputfile', metavar='(txt)', help=OUTPUT_DESCRIPTION)
     args = parser.parse_args()
+
+    logger.info("Input file name: {}, output file name: {}".format(args.inputfile, args.outputfile))
 
     detect_speech(args.inputfile, args.outputfile)
