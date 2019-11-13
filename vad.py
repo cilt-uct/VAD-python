@@ -102,14 +102,11 @@ class VoiceActivityDetector():
                 speech_label = {}
                 speech_time_start = window[0] / self.rate
                 speech_label['speech_begin'] = speech_time_start
-                print(window[0], speech_time_start)
-                #speech_time.append(speech_label)
             if (window[1]==0.0 and is_speech==1):
                 is_speech = 0
                 speech_time_end = window[0] / self.rate
                 speech_label['speech_end'] = speech_time_end
                 speech_time.append(speech_label)
-                print(window[0], speech_time_end)
         return speech_time
        
     def detect_speech(self):
