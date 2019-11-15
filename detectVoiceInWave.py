@@ -25,7 +25,7 @@ def detect_speech(input_file, output_file):
         speech_labels = v.convert_windows_to_readible_labels(raw_detection)
         speech = get_speech_duration(speech_labels)
         logger.info("File: {}, Duration: {}".format(input_file, speech))
-        empty_venue = (speech / v.duration) < 0.06
+        empty_venue = (speech / v.duration) < 0.11
         save_to_file(empty_venue, output_file)
         logger.info("File: {}, Empty: {}".format(input_file, empty_venue))
     except Exception as e:
