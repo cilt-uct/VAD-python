@@ -6,7 +6,7 @@ from config.logging_setup import logger
 
 def save_to_file(empty, filename):
     f = open(filename, 'w')
-    f.write('empty_venue_detect={}\n'.format("true" if empty else "false"))
+    f.write('empty_venue={}\n'.format("true" if empty else "false"))
     f.close()
 
 
