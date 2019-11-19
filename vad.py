@@ -1,12 +1,17 @@
 import numpy as np
 import scipy.io.wavfile as wf
+import soundfile as sf
 
 
 class VoiceActivityDetector():
     """ Use signal energy to detect voice activity in wav file """
     
-    def __init__(self, wave_input_filename):
-        self._read_wav(wave_input_filename)._convert_to_mono()
+    def __init__(self, input_filename):
+
+        if ".wav" in input_filename:
+            self._read_wav(input_filename)._convert_to_mono()
+        else:
+            self._read_flac(input_filename)._convert_to_mono()
         self.sample_window = 0.02 #20 ms
         self.sample_overlap = 0.01 #10ms
         self.speech_window = 0.5 #half a second
@@ -20,7 +25,14 @@ class VoiceActivityDetector():
         self.channels = len(self.data.shape)
         self.filename = wave_file
         return self
-    
+
+    def _read_flac(self, flac_file):
+        self.data, self.rate = sf.read(flac_file)
+        self.duration = len(self.data) / float(self.rate)
+        self.channels = len(self.data.shape)
+        self.filename = flac_file
+        return self
+
     def _convert_to_mono(self):
         if self.channels == 2 :
             self.data = np.mean(self.data, axis=1, dtype=self.data.dtype)
