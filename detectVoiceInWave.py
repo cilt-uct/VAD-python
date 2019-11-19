@@ -17,7 +17,7 @@ def get_speech_duration(speech):
     return duration
 
 
-def detect_speech(input_file, output_file):
+def detect_speech(input_file, output_file="results.txt"):
     try:
         v = VoiceActivityDetector(input_file)
         raw_detection = v.detect_speech()
