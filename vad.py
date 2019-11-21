@@ -1,6 +1,10 @@
+import os
 import numpy as np
 import scipy.io.wavfile as wf
 import soundfile as sf
+from moviepy.editor import *
+from utils import check_or_create_tmp_folder, clean_up_if_required
+from config.logging_setup import logger
 
 
 class VoiceActivityDetector():
@@ -8,16 +12,27 @@ class VoiceActivityDetector():
     
     def __init__(self, input_filename):
 
+        if ".mkv" in input_filename or ".mp4" in input_filename:
+            check_or_create_tmp_folder()
+            video = VideoFileClip(input_filename)
+            audio = video.audio
+            input_filename = "temp/{}{}".format(os.path.basename(input_filename).split('.')[0], ".wav")
+            audio.write_audiofile(input_filename)
+
         if ".wav" in input_filename:
             self._read_wav(input_filename)._convert_to_mono()
-        else:
+        elif ".flac" in input_filename:
             self._read_flac(input_filename)._convert_to_mono()
+        else:
+            logger.error("Unknown file format: {}".format(input_filename))
+
         self.sample_window = 0.02 #20 ms
         self.sample_overlap = 0.01 #10ms
         self.speech_window = 0.5 #half a second
         self.speech_energy_threshold = 0.6 #60% of energy in voice band
         self.speech_start_band = 300
         self.speech_end_band = 3000
+        clean_up_if_required(input_filename)
            
     def _read_wav(self, wave_file):
         self.rate, self.data = wf.read(wave_file)
@@ -148,4 +163,3 @@ class VoiceActivityDetector():
         detected_windows = detected_windows.reshape(int(len(detected_windows)/2),2)
         detected_windows[:,1] = self._smooth_speech_detection(detected_windows)
         return detected_windows
- 
