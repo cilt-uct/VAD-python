@@ -27,6 +27,14 @@ Create object:
 3. run method to detect speech regions
 4. optionally, plot original wave data and detected speech region
 
+## Setup script
+Create a file named config/config.py. Add the address of your logs:
+```python
+LOGS = "logs/logs.log"
+```
+
+
+
 Example python script which saves speech intervals in json file:
 
 `./detectVoiceInWave.py ./wav-sample.wav ./results.json`

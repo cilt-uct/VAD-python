@@ -1,25 +1,53 @@
+import os
 import numpy as np
 import scipy.io.wavfile as wf
-import matplotlib.pyplot as plt
+import soundfile as sf
+from moviepy.editor import *
+from utils import check_or_create_tmp_folder, clean_up_if_required
+from config.logging_setup import logger
+
 
 class VoiceActivityDetector():
     """ Use signal energy to detect voice activity in wav file """
     
-    def __init__(self, wave_input_filename):
-        self._read_wav(wave_input_filename)._convert_to_mono()
+    def __init__(self, input_filename):
+
+        if ".mkv" in input_filename or ".mp4" in input_filename:
+            check_or_create_tmp_folder()
+            video = VideoFileClip(input_filename)
+            audio = video.audio
+            input_filename = "temp/{}{}".format(os.path.basename(input_filename).split('.')[0], ".wav")
+            audio.write_audiofile(input_filename)
+
+        if ".wav" in input_filename:
+            self._read_wav(input_filename)._convert_to_mono()
+        elif ".flac" in input_filename:
+            self._read_flac(input_filename)._convert_to_mono()
+        else:
+            logger.error("Unknown file format: {}".format(input_filename))
+
         self.sample_window = 0.02 #20 ms
         self.sample_overlap = 0.01 #10ms
         self.speech_window = 0.5 #half a second
         self.speech_energy_threshold = 0.6 #60% of energy in voice band
         self.speech_start_band = 300
         self.speech_end_band = 3000
+        clean_up_if_required(input_filename)
            
     def _read_wav(self, wave_file):
         self.rate, self.data = wf.read(wave_file)
+        self.duration = len(self.data) / float(self.rate)
         self.channels = len(self.data.shape)
         self.filename = wave_file
         return self
-    
+
+    def _read_flac(self, flac_file):
+        self.data, self.rate = sf.read(flac_file)
+        self.duration = len(self.data) / float(self.rate)
+        self.channels = len(self.data.shape)
+        self.filename = flac_file
+        return self
+
     def _convert_to_mono(self):
         if self.channels == 2 :
             self.data = np.mean(self.data, axis=1, dtype=self.data.dtype)
@@ -101,31 +129,12 @@ class VoiceActivityDetector():
                 speech_label = {}
                 speech_time_start = window[0] / self.rate
                 speech_label['speech_begin'] = speech_time_start
-                print(window[0], speech_time_start)
-                #speech_time.append(speech_label)
             if (window[1]==0.0 and is_speech==1):
                 is_speech = 0
                 speech_time_end = window[0] / self.rate
                 speech_label['speech_end'] = speech_time_end
                 speech_time.append(speech_label)
-                print(window[0], speech_time_end)
         return speech_time
-      
-    def plot_detected_speech_regions(self):
-        """ Performs speech detection and plot original signal and speech regions.
-        """
-        data = self.data
-        detected_windows = self.detect_speech()
-        data_speech = np.zeros(len(data))
-        it = np.nditer(detected_windows[:,0], flags=['f_index'])
-        while not it.finished:
-            data_speech[int(it[0])] = data[int(it[0])] * detected_windows[it.index,1]
-            it.iternext()
-        plt.figure()
-        plt.plot(data_speech)
-        plt.plot(data)
-        plt.show()
-        return self
        
     def detect_speech(self):
         """ Detects speech regions based on ratio between speech band energy
@@ -154,4 +163,3 @@ class VoiceActivityDetector():
         detected_windows = detected_windows.reshape(int(len(detected_windows)/2),2)
         detected_windows[:,1] = self._smooth_speech_detection(detected_windows)
         return detected_windows
- 

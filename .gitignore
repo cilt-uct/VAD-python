@@ -1,2 +1,7 @@
 
 *.pyc
+*.log
+*.txt
+!requirements.txt
+.idea
+config.py
