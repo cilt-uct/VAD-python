@@ -4,9 +4,10 @@ import argparse
 from config.logging_setup import logger
 
 
-def save_to_file(empty, filename):
+def save_to_file(empty, filename, result):
     f = open(filename, 'w')
     f.write('empty_venue={}\n'.format("true" if empty else "false"))
+    f.write('empty_venue_result={}\n'.format("true" if result else "false"))
     f.close()
 
 
@@ -26,9 +27,10 @@ def detect_speech(input_file, output_file="results.txt"):
         speech = get_speech_duration(speech_labels)
         logger.info("File: {}, Duration of video: {}, Duration of speech: {}".format(input_file, v.duration, speech))
         empty_venue = (speech / v.duration) < 0.05
-        save_to_file(empty_venue, output_file)
+        save_to_file(empty_venue, output_file, True)
         logger.info("File: {}, Empty: {}".format(input_file, empty_venue))
     except Exception as e:
+        save_to_file(False, output_file, False)
         logger.error("Something went wrong while trying to detect speech: {}".format(e))
 
 
